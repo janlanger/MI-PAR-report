@@ -1,0 +1,154 @@
+\documentclass[12pt]{article}
+\usepackage{epsf,epic,eepic,eepicemu}
+%\documentstyle[epsf,epic,eepic,eepicemu]{article}
+\usepackage[utf8]{inputenc}
+
+\begin{document}
+%\oddsidemargin=-5mm \evensidemargin=-5mm \marginparwidth=.08in
+%\marginparsep=.01in \marginparpush=5pt \topmargin=-15mm
+%\headheight=12pt \headsep=25pt \footheight=12pt \footskip=30pt
+%\textheight=25cm \textwidth=17cm \columnsep=2mm \columnseprule=1pt
+%\parindent=15pt\parskip=2pt
+
+\begin{center}
+\bf České vysoké učení technické v Praze\\[2mm]
+	Fakulta informačních technologií\\[2mm]
+	Thákurova 6, 160 00, Praha 6\\[15mm]
+	Semestralní projekt MI-PAR 2011/2012:\\
+    Paralelní algoritmus \\
+    zobecněné Havojské věže\\[5mm]
+       Jaroslav Hejral\\
+       Jan Langer\\[2mm]
+\today
+\end{center}
+
+\section{Definice problému a popis sekvenčního algoritmu}
+Algoritmus úlohy řeší problém sestavení postupu tahů k vyřešení zoběcněných Hanojských věží pro počet věží větší než 3. Hanojská věž o výšce k je věž k různých žetonů, které jsou uspořádány od nejmenšího k největšímu a rozdíly ve velikostech sousedních žetonů jsou vždy 1. Neuplná hanojská věž o výšce k je věž k různých žetonů, které jsou uspořádány od nejmenších k největším a rozdíly ve velikostech alespoň 1 dvojice sousedních žetonů je alespoň 2. Jeden tah je třesun disku z jedné tyče na jinou s tím, že cílová tyč je buď prázdná nebo je na jeních vrcholu disk s větším průměrem. Úkolem algoritmu je sestavit na cílové tyčce úplnou hanojskou věž s minimálním počtem tahů.
+
+\subsubsection{Vstupní data}
+
+n = přirozené číslo představující celkový počet žetonů, n >= 16. Žeton i, i=1,..,n, má průměr i
+s = přirozené číslo představující počet tyček, n/4 >=s > 3
+r = číslo cílové tyčky, 1 <= r <= s
+V[1,..,s] = množina neúplných hanoiských věží.
+
+Argument V se zadává pomocí skóre jednotlivých věží. Skóre je desítková reprezentace binárního kódu představujícího velikost disků na konkrétní tyči. Skóre tyče se vypočte takto $\displaystyle\sum\limits_{i=0}^n {2^{d(i)-1}}$ kde n=počtu disků na tyči a d(i)=velikosti disku. Součet disků na všech tyčích musí být roven $2^{n-1}$.
+
+Příklad volání programu:
+\texttt{./mi-par 5 4 4 1:30:0:0}
+%todo obrázek základní konfigurace
+
+\subsection{Výstup algoritmu}
+Výstupem algortmu je výpis počtu tahů a posloupnost tahů ve formátu disk, původní tyč -> cílová tyč
+%todo příklad výstupu
+
+\subsection{Popis sekvenčního algoritmu}
+Algoritmus je typu BB-DFS, tedy prohledávání do hloubky s návratem a mezí. Řešení zadání vždy existuje. Těsná horní mez řešení je vždy dosažitelná a vypočte se podle vzorce $(2^{n/(s-2)-1})(2s-5)$. V případě že je nalezeno řešení je horní mez snížena na jeho velikost mínus jedna (hledáme o jedno menší řešení). V případě kdy zanoření ve stromu stromu řešení překročí aktuálně platnou horní mez dojde k oříznutí neperspektivní větve a provede se návrat. Zde jsme provedli ještě optimalizaci prořezávání a to, že návrat se provede už v případě, že aktuálně zbývající počet kroků do horní meze už nestačí pro přesunutí všech zbývajících disků na cílovou tyč. Touto optimalizací jsme dosáhli oříznutí neperspektivního postupu až o (horní mez-počet disků) dříve. Její významnost se zvyšuje s přibývajícím množstvím tyčí.
+
+V každém cyklu sekvenčního algoritmu je odebrán prvek na vrcholu zásobníku. Je zkontrolováno, zda-li jsme nedošli k řešení, pokud ano je řešení uloženo, sníží se horní mez a smyčka se spustí znovu. Pokud ne, zkontroluje se dosažení meze a zda-li existují možnosti přesunu disků do dalšího kroku. V případě že ano, vygenerují se  a vloží do zásobníku všechny možnosti přesunu disků na tyčích. Smyčka běží dokud není prázdný zásobník. Na konci běhu se vypíše nalezená řešení a počet tahů.
+
+\subsection{Výsledky měření sekvenčního algoritmu na svazku STAR}
+
+
+
+\section{Popis paralelního algoritmu a jeho implementace v MPI}
+
+Popište paralelní algoritmus, opět vyjděte ze zadání a přesně
+vymezte odchylky, zvláště u algoritmu pro vyvažování zátěže, hledání
+dárce, ci ukončení výpočtu.  Popište a vysvětlete strukturu
+celkového paralelního algoritmu na úrovni procesů v MPI a strukturu
+kódu jednotlivých procesů. Např. jak je naimplementována smyčka pro
+činnost procesů v aktivním stavu i v stavu nečinnosti. Jaké jste
+zvolili konstanty a parametry pro škálování algoritmu. Struktura a
+sémantika příkazové řádky pro spouštění programu.
+
+\section{Naměřené výsledky a vyhodnocení}
+
+\begin{enumerate}
+\item Zvolte tři instance problému s takovou velikostí vstupních dat, pro které má
+sekvenční algoritmus časovou složitost kolem 5, 10 a 15 minut. Pro
+meření čas potřebný na čtení dat z disku a uložení na disk
+neuvažujte a zakomentujte ladící tisky, logy, zprávy a výstupy.
+\item Měřte paralelní čas při použití $i=2,\cdot,32$ procesorů na sítích Ethernet a InfiniBand.
+%\item Pri mereni kazde instance problemu na dany pocet procesoru spoctete pro vas algoritmus dynamicke delby prace celkovy pocet odeslanych zadosti o praci, prumer na 1 procesor a jejich uspesnost.
+%\item Mereni pro dany pocet procesoru a instanci problemu provedte 3x a pouzijte prumerne hodnoty.
+\item Z naměřených dat sestavte grafy zrychlení $S(n,p)$. Zjistěte, zda a za jakych podmínek
+došlo k superlineárnímu zrychlení a pokuste se je zdůvodnit.
+\item Vyhodnoďte komunikační složitost dynamického vyvažování zátěže a posuďte
+vhodnost vámi implementovaného algoritmu pro hledání dárce a dělení
+zásobníku pri řešení vašeho problému. Posuďte efektivnost a
+škálovatelnost algoritmu. Popište nedostatky vaší implementace a
+navrhněte zlepšení.
+\item Empiricky stanovte
+granularitu vaší implementace, tj., stupeň paralelismu pro danou
+velikost řešeného problému. Stanovte kritéria pro stanovení mezí, za
+kterými již není učinné rozkládat výpočet na menší procesy, protože
+by komunikační náklady prevážily urychlení paralelním výpočtem.
+
+\end{enumerate}
+
+\section{Závěr}
+
+Celkové zhodnocení semestrální práce a zkušenosti získaných během
+semestru.
+
+\section{Literatura}
+
+\appendix
+
+\section{Návod pro vkládání grafů a obrázků do Latexu}
+
+Nejjednodušší způsob vytvoření obrázku je použít vektorový grafický
+editor (např. xfig nebo jfig), ze kterého lze exportovat buď
+\begin{itemize}
+\item postscript formáty (ps nebo eps formát) nebo
+\item latex formáty (v pořadí prostý latex, latex s macry epic, eepic, eepicemu). Uvedené pořadí odpovídá růstu
+komplikovanosti obrázků který formát podporuje (prostá latex macra
+umožnují pouze jednoduché, epic makra něco mezi, je třeba
+vyzkoušet).
+
+\end{itemize}
+Následující příklady platí pro všechny případy.
+
+Obrázek v postscriptu, vycentrovaný a na celou šířku stránky, s
+popisem a číslem. Všimnete si, jak řídit velikost obrazku.
+\begin{figure}[ht]
+%\epsfysize=3cm \centerline{\epsfbox{VasObrazek.ps}} \caption{Popis
+%vašeho obrazku} \label{labelvasehoobrazku}
+\end{figure}
+
+Obrázek pouze vložený mezi řádky textu, bez popisu a číslování.\\
+\epsfxsize=1cm
+%\rule{0pt}{0pt}\hfill\epsfbox{VasObrazek.ps}\hfill\rule{0pt}{0pt}
+
+Latexovské obrázky maji přípony *.latex, *.epic, *.eepic, a
+*.eepicemu, respective.
+\begin{figure}[ht]
+\begin{center}
+ %\input VasObrazek.latex
+\end{center}
+\caption{Popis vašeho obrázku} \label{l1}
+\end{figure}
+Vypuštením závorek {\tt figure} dostanete opět pouze rámeček v textu
+bez čísla a popisu.
+
+Takhle jednoduše můžete poskládat obrázky vedle sebe.
+\begin{center}
+%\setlength{\unitlength}{0.1mm}\input VasObrazek.epic
+\hglue 5mm
+%\setlength{\unitlength}{0.15mm}\input VasObrazek.eepic
+\hglue 5mm
+%\setlength{\unitlength}{0.2mm}\input VasObrazek.eepicemu
+\end{center}
+Řídit velikost latexovskych obrázků lze příkazem
+\begin{verbatim}
+\setlength{\unitlength}{0.1mm}
+\end{verbatim}
+které mění měřítko rastru obrázku, Tyto příkazy je ale současně
+nutné vyhodit ze souboru, který xfig vygeneroval.
+
+Pro vytváření grafu lze použít program gnuplot, který umí generovat
+postscriptovy soubor, ktery vložíte do Latexu výše uvedeným
+způsobem.
+
+\end{document}

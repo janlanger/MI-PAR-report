@@ -1,0 +1,7 @@
+
+serial.*
+*.xlsx
+*.log
+*.aux
+*.pdf
+*.gz
