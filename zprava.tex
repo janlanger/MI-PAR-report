@@ -1,9 +1,12 @@
 \documentclass[12pt]{article}
-\usepackage{epsf,epic,eepic,eepicemu}
+\usepackage[czech]{babel}
+\usepackage{epsf,epic,eepic,eepicemu, graphicx}
 %\documentstyle[epsf,epic,eepic,eepicemu]{article}
-\usepackage[czech, english]{babel}
+
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
+\usepackage{cmap}
+\usepackage{mathpazo}
 
 \begin{document}
 %\oddsidemargin=-5mm \evensidemargin=-5mm \marginparwidth=.08in
@@ -15,7 +18,7 @@
 \begin{center}
 \bf České vysoké učení technické v Praze\\[2mm]
 	Fakulta informačních technologií\\[2mm]
-	Thákurova 6, 160 00, Praha 6\\[15mm]
+	Thákurova 9, 160 00, Praha 6\\[15mm]
 	\textbf{Semestralní projekt MI-PAR 2011/2012:\\
     Paralelní algoritmus \\
     zobecněné Hanojské věže}\\[5mm]
@@ -25,7 +28,7 @@
 \end{center}
 
 \section{Definice problému a popis sekvenčního algoritmu}
-Algoritmus úlohy řeší problém sestavení postupu tahů k vyřešení zoběcněných Hanojských věží pro počet věží větší než 3. Hanojská věž o výšce k je věž k různých žetonů, které jsou uspořádány od nejmenšího k největšímu a rozdíly ve velikostech sousedních žetonů jsou vždy 1. Neuplná hanojská věž o výšce k je věž k různých žetonů, které jsou uspořádány od nejmenších k největším a rozdíly ve velikostech alespoň 1 dvojice sousedních žetonů je alespoň 2. Jeden tah je třesun disku z jedné tyče na jinou s tím, že cílová tyč je buď prázdná nebo je na jeních vrcholu disk s větším průměrem. Úkolem algoritmu je sestavit na cílové tyčce úplnou hanojskou věž s minimálním počtem tahů.
+Algoritmus úlohy řeší problém sestavení postupu tahů k vyřešení zoběcněných Hanojských věží pro počet věží větší než 3. Hanojská věž o výšce k je věž k různých žetonů, které jsou uspořádány od nejmenšího k největšímu a rozdíly ve velikostech sousedních žetonů jsou vždy 1. Neuplná hanojská věž o výšce k je věž k různých žetonů, které jsou uspořádány od nejmenších k největším a rozdíly ve velikostech alespoň 1 dvojice sousedních žetonů je alespoň 2. Jeden tah je přesun disku z jedné tyče na jinou s tím, že cílová tyč je buď prázdná nebo je na jejím vrcholu disk s větším průměrem. Úkolem algoritmu je sestavit na cílové tyčce úplnou hanojskou věž s minimálním počtem tahů.
 
 \subsection{Vstupní data}
 \begin{itemize}
@@ -35,32 +38,54 @@ Algoritmus úlohy řeší problém sestavení postupu tahů k vyřešení zoběc
 \item V[1,..,s] = množina neúplných hanoiských věží.
 \end{itemize}
 
-Argument V se zadává pomocí skóre jednotlivých věží. Skóre je desítková reprezentace binárního kódu představujícího velikosti disků umístěných na konkrétní tyči. Skóre tyče se vypočte takto $\displaystyle\sum\limits_{i=0}^n {2^{d(i)-1}}$ kde n=počtu disků na tyči a d(i)=velikosti disku. Součet skóre všech tyčí musí být roven $2^{n-1}$.
+Argument V se zadává pomocí skóre jednotlivých věží. Skóre tyče je desítková reprezentace binárního kódu představujícího velikosti disků umístěných na konkrétní tyči. Vypočte se pomocí vzorce:
+\begin{center}
+$\displaystyle\sum\limits_{i=0}^n {2^{d(i)-1}}$
+\end{center}
+ kde n=počtu disků na tyči a d(i)=velikosti disku. Součet skóre všech tyčí musí být rovno $2^{n-1}$.
 
-Příklad volání programu:
+Příklad volání programu s parametry:
 \texttt{./mi-par 5 4 4 1:30:0:0}
 
-
-
-//TODO obrázek základní konfigurace
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=140mm]{5-4-4.png}
+\caption{Počáteční konfigurce pro zadání \texttt{./mi-par 5 4 4 1:30:0:0}}
+\end{center}
+\end{figure}
 
 
 
 \subsection{Výstup algoritmu}
-Výstupem algortmu je výpis počtu tahů a posloupnost tahů ve formátu disk, původní tyč -> cílová tyč
+Výstupem algortmu je výpis počtu tahů a posloupnost tahů ve formátu disk, původní tyč -> cílová tyč.
+Přiklad výstupu pro ukázkové zadání:
 
-
-
-//TODO  příklad výstupu
-
-
+\begin{verbatim}
+-------------
+I have solution!
+Number of moves: 12
+2: 2 > 4;
+3: 2 > 3;
+2: 4 > 3;
+1: 1 > 3;
+4: 2 > 1;
+5: 2 > 4;
+1: 3 > 2;
+4: 1 > 4;
+2: 3 > 1;
+3: 3 > 4;
+2: 1 > 4;
+1: 2 > 4;
+\end{verbatim}
 \subsection{Popis sekvenčního algoritmu}
-Algoritmus je typu BB-DFS, tedy prohledávání do hloubky s návratem a mezí. Řešení zadání algoritmu vždy existuje. 
+Algoritmus je typu BB-DFS, tedy prohledávání do hloubky s návratem a mezí. Řešení algoritmu vždy existuje. 
 
-V každém cyklu sekvenčního algoritmu je odebrán prvek na vrcholu zásobníku. Je zkontrolováno, zda-li jsme nedošli k řešení, pokud ano je řešení uloženo, sníží se horní mez a smyčka se spustí znovu. Pokud ne, zkontroluje se dosažení meze a zda-li existují možnosti přesunu disků do dalšího kroku. V případě že ano, vygenerují se  a vloží do zásobníku. Smyčka běží dokud není prázdný zásobník. Na konci běhu program vypíše nalezená řešení a počet tahů.
+V každém cyklu sekvenčního algoritmu je odebrán prvek na vrcholu zásobníku. Je zkontrolováno, zda-li jsme nedošli k řešení, pokud ano je řešení uloženo, sníží se horní mez a smyčka se spustí znovu. Pokud ne, zkontroluje se dosažení meze a zda-li existují možnosti přesunu disků do dalšího kroku. V případě je možné nějaké disky přesunout, vygenerují se  a vloží do zásobníku. Smyčka běží dokud není prázdný zásobník. Na konci běhu program vypíše nalezené řešení a počet tahů.
 
 \subsubsection{Optimalizace ořezávání horní mezí}
-Těsná horní mez řešení se vypočte podle vzorce $(2^{n/(s-2)-1})(2s-5)$. V případě že je nalezeno řešení je horní mez snížena na jeho velikost mínus jedna (hledáme o jedno menší řešení). Pokud zanoření ve stromu řešení překročí aktuálně platnou horní mez dojde k oříznutí této neperspektivní větve a provede se návrat. Zde jsme provedli ještě optimalizaci prořezávání a to, že návrat se provede už v případě, že aktuálně zbývající počet kroků do horní meze už nestačí pro přesunutí všech zbývajících disků na cílovou tyč. Touto optimalizací jsme dosáhli oříznutí neperspektivního postupu až o (horní mez-počet disků) dříve. Její významnost se zvyšuje s přibývajícím množstvím tyčí.
+Těsná horní mez řešení se vypočte podle vzorce $(2^{n/(s-2)-1})(2s-5)$. V případě že je nalezeno řešení je horní mez snížena na jeho velikost mínus jedna (hledáme o jedno menší řešení). Pokud zanoření ve stromu řešení překročí aktuálně platnou horní mez dojde k oříznutí této neperspektivní větve a provede se návrat. 
+
+Ořezávání se nám ještě podařilo optimalizovat, a to tak, že návrat se provede už v případě, že aktuálně zbývající počet kroků do horní meze již nestačí pro přesunutí všech zbývajících disků na cílovou tyč. Touto optimalizací můžeme dosáhnout oříznutí neperspektivního postupu až o (horní mez-počet disků) dříve. Její významnost se zvyšuje s přibývajícím množstvím disků.
 
 
 
@@ -166,27 +191,47 @@ sémantika příkazové řádky pro spouštění programu.
 
 \section{Naměřené výsledky a vyhodnocení}
 
-výslednou palikaci jsme otestovali na výpočetním klastru STAR pro tři různě velké instance problému:
+Výslednou aplikaci jsme otestovali na výpočetním stroji STAR pro tři různě velké instance problému. Každé zadání bylo změřeno pro běh na 1, 2, 4, 8, 16 a 24 procesorech a pro komunikační sítě InfiniBand a Ethernet. Měření na svazku STAR probíhalo vždy na uzlech s 12 jádry (parametr \textit{12c} při spuštění).
 
 \begin{itemize}
 \item Zadání č. 1: \texttt{16 6 6 72:32:3:0:20:65408}
 \item Zadání č. 2: \texttt{16 7 7 72:32:3:0:20:0:65408}
 \item Zadání č. 3: \texttt{16 9 9 72:32:3:128:20:0:0:0:65280}
 
+
+
 \end{itemize}
 
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=140mm]{16-6-6.png}
+\caption{Zadání č. 1: 16 disků, 6 tyčí, cílová tyč č. 6}
+\end{center}
+\end{figure}
 
-//TODO: vizualizace jednotlivých problémů
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=140mm]{16-7-7.png}
+\caption{Zadání č. 2: 16 disků, 7 tyčí, cílová tyč č. 7}
+\end{center}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=140mm]{16-9-9.png}
+\caption{Zadání č. 3: 16 disků, 9 tyčí, cílová tyč č. 9}
+\end{center}
+\end{figure}
 
 
-
-\subsection{Neměřené výsledky pro síť InfiniBand 10Gbps}
-
+\subsection{Naměřené výsledky pro síť InfiniBand 10Gbps}
+\begin{center}
 \begin{tabular}{|c|c|c|c|}
 \hline 
  & \multicolumn{3}{c|}{čas [s] (zaokrouhleno na 1 desetiné místo)} \\ 
 \hline 
 počet procesů & Zadání č.1 & Zadání č.2 & Zadání č.3 \\ 
+\hline 
 \hline 
 1 & 2387,5 & 379,2 & 1251,2 \\ 
 \hline 
@@ -201,55 +246,69 @@ počet procesů & Zadání č.1 & Zadání č.2 & Zadání č.3 \\
 24 & 175,4 & 34,9 & 220,9 \\ 
 \hline 
 \end{tabular} 
+\end{center}
 
 
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=100mm]{cpu_time_inifiniband.png}
+\caption{Rychlost výpočtu v závislosti na počtu procesů (InfiniBand)}
+\label{fig:ct_inifini}
+\end{center}
+\end{figure}
 
-//TODO: graf
-
-//TODO: graf zrychlení
-
-//TODO: je to superlineární?
-
-
-
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=100mm]{speedup_infini.png}
+\caption{Zrychlení výpočtu v závisloti na počtu procesů (InfiniBand)}
+\label{fig:speedup_inifini}
+\end{center}
+\end{figure}
 
 \subsection{Naměřené výsledky pro síť Ethernet 1Gbps}
 
-//TODO změřit a porovnat v Infini
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline 
+ & \multicolumn{3}{c|}{čas [s] (zaokrouhleno na 1 desetiné místo)} \\ 
+\hline 
+počet procesů & Zadání č.1 & Zadání č.2 & Zadání č.3 \\ 
+\hline 
+\hline 
+1 & 2387,5 & 379,2 & 1251,2 \\ 
+\hline 
+2 & 1151,3 & 205,5 & 798,4 \\ 
+\hline 
+4 & 294,2 & 41,2 & 435,5 \\ 
+\hline 
+8 & 181,4 & 37,0 & 235,5 \\ 
+\hline 
+16 & 181,9 & 36,1 & 227,1 \\ 
+\hline 
+24 & 181,7 & 35,4 & 221,1 \\ 
+\hline 
+\end{tabular} 
+\end{center}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=100mm]{cpu_time_ethernet.png}
+\caption{Rychlost výpočtu v závislosti na počtu procesů (Ethernet)}
+\label{fig:ct_inifini}
+\end{center}
+\end{figure}
 
 
-
-
-\begin{enumerate}
-\item Zvolte tři instance problému s takovou velikostí vstupních dat, pro které má
-sekvenční algoritmus časovou složitost kolem 5, 10 a 15 minut. Pro
-meření čas potřebný na čtení dat z disku a uložení na disk
-neuvažujte a zakomentujte ladící tisky, logy, zprávy a výstupy.
-\item Měřte paralelní čas při použití $i=2,\cdot,32$ procesorů na sítích Ethernet a InfiniBand.
-%\item Pri mereni kazde instance problemu na dany pocet procesoru spoctete pro vas algoritmus dynamicke delby prace celkovy pocet odeslanych zadosti o praci, prumer na 1 procesor a jejich uspesnost.
-%\item Mereni pro dany pocet procesoru a instanci problemu provedte 3x a pouzijte prumerne hodnoty.
-\item Z naměřených dat sestavte grafy zrychlení $S(n,p)$. Zjistěte, zda a za jakych podmínek
-došlo k superlineárnímu zrychlení a pokuste se je zdůvodnit.
-\item Vyhodnoďte komunikační složitost dynamického vyvažování zátěže a posuďte
-vhodnost vámi implementovaného algoritmu pro hledání dárce a dělení
-zásobníku pri řešení vašeho problému. Posuďte efektivnost a
-škálovatelnost algoritmu. Popište nedostatky vaší implementace a
-navrhněte zlepšení.
-\item Empiricky stanovte
-granularitu vaší implementace, tj., stupeň paralelismu pro danou
-velikost řešeného problému. Stanovte kritéria pro stanovení mezí, za
-kterými již není učinné rozkládat výpočet na menší procesy, protože
-by komunikační náklady prevážily urychlení paralelním výpočtem.
-
-\end{enumerate}
+\subsection{Porovnání měření na Infinibandu a Ethernetu}
+Z porovnání hodnot naměřených na síti Infiniband a Ethernet je vidět, že rozdíli dosahují maximálně desítek sekund pro větší instance na menším počtu procesorů. Částečný vliv na hodnoty má samozřejmě také momentální zatížení svazku STAR a jeho komunikačních sítí v době měření. V procentuálních hodnotách má nějvětší rozdíl hodnotu 5\% pro zadání č.1 na 2 jádrech, pro menší instance a také větší počet procesorů jsou ale rozdíly menší a tak můžeme říci, že rozdílná rychlost přenosu mezi uzly nemá na celkovou dobu výpočtu zásadní vliv.
 
 \section{Závěr}
 
-Celkové zhodnocení semestrální práce a zkušenosti získaných během
-semestru.
+Úspěšně se nám podařilo implementovat sekvenční i paralelní algoritmu pro řešení zadaného problému.
+Provedli jsme měření času potřebného pro výpočet  úloh netriviální složitosti sekvenčně a paralelně na 1-24 jádrech procesoru.
+Výsledky měření ukazují, že algoritmus vykazuje na více procesorech superlineární zrychlení, a to především proto, že současným 
+výpočtem ve více větvích stromu dokážeme dříve nalézt \uv{neideální} řešení a tedy snižovat horní mez, která je globálně sdílena.
 
-\section{Literatura}
-
-
+Semestrální práce pro nás byla velkým přínosem, hlavně co se týká seznámení s MPI a komunikací v paralelním prostředí. 
 
 \end{document}
