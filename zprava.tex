@@ -87,22 +87,18 @@ Těsná horní mez řešení se vypočte podle vzorce $(2^{n/(s-2)-1})(2s-5)$. V
 
 Ořezávání se nám ještě podařilo optimalizovat, a to tak, že návrat se provede už v případě, že aktuálně zbývající počet kroků do horní meze již nestačí pro přesunutí všech zbývajících disků na cílovou tyč. Touto optimalizací můžeme dosáhnout oříznutí neperspektivního postupu až o (horní mez-počet disků) dříve. Její významnost se zvyšuje s přibývajícím množstvím disků.
 
-
-
-//TODO: vysvětlit proč jsme se vykašlali na dolní mez
-
 \section{Popis paralelního algoritmu a jeho implementace v MPI}
 Algoritmus je typu \verb|G-PBB-DFS-D|. Oproti zádání jsme upravili způsob
 šíření nejlepšího známého řešení, které jsme se rozhodli sdílet globálně. Vedla
 nás k tomu především vidina značné uspory ve výpočtech. Procesor, který nalezne
-řesení(které z podstaty úlohy vždy existuje) sdílí jeho délku s ostatními
+řesení (které z podstaty úlohy vždy existuje) sdílí jeho délku s ostatními
 procesory. To nám u nich umožní rychleji zaříznout částečná řešení, která již
 nemají šanci na to býti lepšími.
 
 \subsection{Pracovní smyčka}
 Hlavní smyčka programu, která slouží pro řešení problému je prováděna dokud má
-daný procesor něco na práci(v zásobníku disponuje nějakým částečným řešením,
-které jesště neprozkoumal). Kromě standardního výpočtu řešení, který odpovídá
+daný procesor něco na práci (v zásobníku disponuje nějakým částečným řešením,
+které ještě neprozkoumal). Kromě standardního výpočtu řešení, který odpovídá
 sekvenčnímu algoritmu obsahuje neblokovanou detekci příchodu zpráv. V této
 části je kódu můžou přijít následující zprávy.
 
@@ -113,14 +109,14 @@ dna zásobníku. Distribucí práce ze spodku zásobníku jsme dosáhli značné
 zrychlení kde máme jistotu, že předané částečné řešení má největší potenciál 
 další řešitelnosti.
   \item [TAG\_SOLUTION\_NEW\_LIMIT] Tato zprávu rozesílá pouze hlavní
-procesor(P0). Každý procesor který ji přijme si updatuje vlastní limit určující
+procesor(P0). Každý procesor, který ji přijme si upraví vlastní limit určující
 novou horní mez pro hledání řešení. 
   \item [TAG\_FINALIZE] Tato zprávu rozesílá pouze předchůdce a nejedná
 se o nic jiného než o peška. Při přijmu se provede logický součin peška s
 vlastním indikátorem práce. Agresivní je v tomto přípádě 0, která reprezentuje
 existenci práce. V rámci hlavní smyčky je krajně nepravděpodobné, že by procesor
-dále poslal, že nemá práci. Jediný případ kdy by to mohlo nastat je, když by
-procesor tesně před přijmutím peška odeslal poslední částečné řešení žadateli o
+dále poslal že nemá práci. Jediný případ, kdy by to mohlo nastat je, když by
+procesor těsně před přijmutím peška odeslal poslední částečné řešení žadateli o
 práci.
 \end{description}
 V neposlední řadě se v rámci pracovní smyčky kontroluje dosažení řešení. V
@@ -139,7 +135,7 @@ Principielně procesor požádal o práci a také ji dostal. Získanou práci si
 do zásobníku, změní svůj stav na to, že má práci a opustí smyčku hledání práce.
   \item [TAG\_FINALIZE] Jedná o peška. Pokud mi je poslán v tuto chvíli vím, že
 nejsem jeho autorem, a proto ho pouze logicky přenásobím se svým stavem a sice
-nemám práci(logická 1). Opět platí agresivita nuly (je práce).  
+nemám práci (logická 1). Opět platí agresivita nuly (je práce).  
   \item [TAG\_NO\_MORE\_WORK] Tuto zprávu očekávám pouze od toho procesoru,
 kterého jsem žádal o práci. Indikuje danému procesoru fakt, že ani dotazovaný
 nemá nic na práci a proto se musí poohlédnout jinde.
@@ -147,7 +143,7 @@ nemá nic na práci a proto se musí poohlédnout jinde.
 ji nemá a proto rovnou odpoví zprávou \verb|TAG_NO_MORE_WORK|.
    \item [TAG\_TERMINATE] Někdo rozhodl, že je na čase ukončit výpočet. Po
 přijmu napřed daný procesor přepošle asynchronně stejnou zprávu svému
-následovníkovi. Hlavní procesor(P0) vypíše na stardandní výstup
+následovníkovi. Hlavní procesor (P0) vypíše na stardandní výstup
 řešení a ukončí se. Jiný než hlavní procesor se pouze ukončí.
 \end{description}
 V případě, že opouští procesor část čekací smyčky ve které si řešil hledání
@@ -164,13 +160,13 @@ dokud nevyčerpá všechny možnosti.
 
 \subsection{Ukončení výpočtu}
 Pro ukončení výpočtu používáme stardandní kolečko s peškem. Peška začne posílat
-procesor, který nemá prací i poté, co o ní požádal postupně od všech ostatních
-procesů. Každý kdo přijme peška ho přebarví podle toho, jestli práci má nebo ne.
-Případ toho, že přijde pešek když procesor poslal praci do casti, kde již pešek
-byl máme ošetřeno tím, že v tu chvíli se daný procesor tváří jako by sám práci
-měl i když to nemusí být nezbytně pravda. Pokud se procesoru, který peška
-vysílal pešek vrátí, informuje následníka o ukončení výpočtu. Každý procesor,
-který tuto zprávu obdrží ji přepšle svému následovníkovi a ukončí svůj výpočet.
+procesor, který nemá prací i poté, co o ní požádal postupně všechny ostatní procesy. 
+Každý kdo peška přijme ho přebarví podle toho, jestli práci má nebo ne.
+Případ, kdy přijde pešek v momentě kdy procesor poslal práci do části, kde již pešek
+byl, máme ošetřen tím, že v tu chvíli se daný procesor tváří jako by sám práci
+měl, i když to nemusí být nezbytně pravda. Když se pešek vrátí k procesoru který ho vyslal, 
+a je ve stavu \uv{není práce} (logická 1), informuje svého následníka o ukončení výpočtu. 
+Každý procesor, který zprávu o ukončení obdrží ji přepošle svému následovníkovi a ukončí se.
 Jedinou vyjímkou v pravidlu je hlavní procesor (P0), který před svým ukončením
 vypíše na výstup nalezené řešení.
 
@@ -178,16 +174,7 @@ vypíše na výstup nalezené řešení.
 Oproti sekvenčnímu řešení nedoznala sémantika příkazu žádných změn. 
 \begin{verbatim}
   ./mi-par 5 4 4 1:30:0:0                 
-\end{verbatim} 
-
-Popište paralelní algoritmus, opět vyjděte ze zadání a přesně
-vymezte odchylky, zvláště u algoritmu pro vyvažování zátěže, hledání
-dárce, ci ukončení výpočtu.  Popište a vysvětlete strukturu
-celkového paralelního algoritmu na úrovni procesů v MPI a strukturu
-kódu jednotlivých procesů. Např. jak je naimplementována smyčka pro
-činnost procesů v aktivním stavu i v stavu nečinnosti. Jaké jste
-zvolili konstanty a parametry pro škálování algoritmu. Struktura a
-sémantika příkazové řádky pro spouštění programu.
+\end{verbatim}
 
 \section{Naměřené výsledky a vyhodnocení}
 
