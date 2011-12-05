@@ -28,11 +28,21 @@
 \end{center}
 
 \section{Definice problému a popis sekvenčního algoritmu}
-Algoritmus úlohy řeší problém sestavení postupu tahů k vyřešení zoběcněných Hanojských věží pro počet věží větší než 3. Hanojská věž o výšce k je věž k různých žetonů, které jsou uspořádány od nejmenšího k největšímu a rozdíly ve velikostech sousedních žetonů jsou vždy 1. Neuplná hanojská věž o výšce k je věž k různých žetonů, které jsou uspořádány od nejmenších k největším a rozdíly ve velikostech alespoň 1 dvojice sousedních žetonů je alespoň 2. Jeden tah je přesun disku z jedné tyče na jinou s tím, že cílová tyč je buď prázdná nebo je na jejím vrcholu disk s větším průměrem. Úkolem algoritmu je sestavit na cílové tyčce úplnou hanojskou věž s minimálním počtem tahů.
+Algoritmus úlohy řeší problém sestavení postupu tahů k vyřešení zoběcněných
+Hanojských věží pro počet věží větší než 3. Hanojská věž o výšce \verb|k| je věž
+\verb|k| různých žetonů, které jsou uspořádány od nejmenšího k největšímu a
+rozdíly ve velikostech sousedních žetonů jsou vždy 1. Oproti tomu neúplná
+hanojská věž o výšce \verb|k| je věž \verb|k| různých žetonů, které jsou
+uspořádány od nejmenších k největším a rozdíly ve velikostech alespoň 1 dvojice
+sousedních žetonů je alespoň 2. Jeden tah je přesun disku z jedné tyče na jinou
+s tím, že cílová tyč je buď prázdná nebo je na jejím vrcholu disk s větším
+průměrem. Úkolem algoritmu je sestavit na cílové tyčce úplnou hanojskou věž
+pomocí minimálního počtu tahů.
 
 \subsection{Vstupní data}
 \begin{itemize}
-\item n = přirozené číslo představující celkový počet žetonů, n >= 16. Žeton i, i=1,..,n, má průměr i
+\item n = přirozené číslo představující celkový počet žetonů, n >=
+16. Žeton i, i=1,..,n, má průměr i
 \item s = přirozené číslo představující počet tyček, n/4 >=s > 3
 \item r = číslo cílové tyčky, 1 <= r <= s
 \item V[1,..,s] = množina neúplných hanoiských věží.
@@ -78,14 +88,35 @@ Number of moves: 12
 1: 2 > 4;
 \end{verbatim}
 \subsection{Popis sekvenčního algoritmu}
-Algoritmus je typu BB-DFS, tedy prohledávání do hloubky s návratem a mezí. Řešení algoritmu vždy existuje. 
+Algoritmus je typu BB-DFS, tedy prohledávání do hloubky s návratem a mezí.
+Řešení algoritmu vždy existuje. 
 
-V každém cyklu sekvenčního algoritmu je odebrán prvek na vrcholu zásobníku. Je zkontrolováno, zda-li jsme nedošli k řešení, pokud ano je řešení uloženo, sníží se horní mez a smyčka se spustí znovu. Pokud ne, zkontroluje se dosažení meze a zda-li existují možnosti přesunu disků do dalšího kroku. V případě je možné nějaké disky přesunout, vygenerují se  a vloží do zásobníku. Smyčka běží dokud není prázdný zásobník. Na konci běhu program vypíše nalezené řešení a počet tahů.
+V každém cyklu sekvenčního algoritmu je odebrán prvek z vrcholu zásobníku.
+Odebrané částečné řešení je zkontrolováno zda se nejedná o úplné řešení. Pokud
+ano, je řešení uloženo smyčka programu se spustí znovu se sníženou hodnotou
+horní meze na hodnotu o jedna menší než je právě nalezené řešení. V případě, že
+se nejedná o konečné řešení, zkontroluje se dosažení horní meze. V případě, že
+horní mez nebyla dosažena, vygenerují se všechny nová částečná řešení o jeden
+krok hlubší než původní částečné řešení a vloží se do zásobníku. Hlavní smyčka
+programu běží dokud není prázdný zásobník. Na konci běhu program vypíše nalezené
+řešení a počet tahů.
 
 \subsubsection{Optimalizace ořezávání horní mezí}
-Těsná horní mez řešení se vypočte podle vzorce $(2^{n/(s-2)-1})(2s-5)$. V případě že je nalezeno řešení je horní mez snížena na jeho velikost mínus jedna (hledáme o jedno menší řešení). Pokud zanoření ve stromu řešení překročí aktuálně platnou horní mez dojde k oříznutí této neperspektivní větve a provede se návrat. 
+Těsná horní mez řešení se vypoítá dle vzorce $(2^{n/(s-2)-1})(2s-5)$. V případě
+že je nalezeno řešení je horní mez snížena na jeho velikost mínus jedna (hledáme
+o jedno menší řešení). Pokud zanoření ve stromu řešení překročí aktuálně platnou
+horní mez dojde k oříznutí této neperspektivní větve a provede se návrat. 
 
-Ořezávání se nám ještě podařilo optimalizovat, a to tak, že návrat se provede už v případě, že aktuálně zbývající počet kroků do horní meze již nestačí pro přesunutí všech zbývajících disků na cílovou tyč. Touto optimalizací můžeme dosáhnout oříznutí neperspektivního postupu až o (horní mez-počet disků) dříve. Její významnost se zvyšuje s přibývajícím množstvím disků.
+Ořezávání se nám ještě podařilo optimalizovat, a to tak, že návrat se provede už
+v případě, že aktuálně zbývající počet kroků do horní meze již nestačí pro
+přesunutí všech zbývajících disků na cílovou tyč. Touto optimalizací můžeme
+dosáhnout oříznutí neperspektivního postupu až o (horní mez - počet disků)
+dříve. Její významnost se zvyšuje s přibývajícím množstvím disků.
+
+Další podstatnou optimalizaci jsme dosáhli zamezením zpětných smyček kdy se
+žeton zaczklí mezi dvěma tyčemi (tam a zpátky). Původně jsme uvažovali zamezení
+i vícekrokových smyček, nicméně režije na jejich kontrolu vedla naopak ke
+snížení efektivity.
 
 \section{Popis paralelního algoritmu a jeho implementace v MPI}
 Algoritmus je typu \verb|G-PBB-DFS-D|. Oproti zádání jsme upravili způsob
@@ -100,18 +131,18 @@ Hlavní smyčka programu, která slouží pro řešení problému je prováděna
 daný procesor něco na práci (v zásobníku disponuje nějakým částečným řešením,
 které ještě neprozkoumal). Kromě standardního výpočtu řešení, který odpovídá
 sekvenčnímu algoritmu obsahuje neblokovanou detekci příchodu zpráv. V této
-části je kódu můžou přijít následující zprávy.
+části kódu můžou přijít následující zprávy.
 
 \begin{description}
   \item [TAG\_NEED\_MORE\_WORK] Některý procesor žádá práci. Pokud danému 
 procesoru ještě zbývá nějaká práce v zásobníku, tak žadateli pošle práci ze 
 dna zásobníku. Distribucí práce ze spodku zásobníku jsme dosáhli značného 
-zrychlení kde máme jistotu, že předané částečné řešení má největší potenciál 
-další řešitelnosti.
+zrychlení neboť zde máme jistotu, že předané částečné řešení, má největší
+potenciál další řešitelnosti.
   \item [TAG\_SOLUTION\_NEW\_LIMIT] Tato zprávu rozesílá pouze hlavní
 procesor(P0). Každý procesor, který ji přijme si upraví vlastní limit určující
 novou horní mez pro hledání řešení. 
-  \item [TAG\_FINALIZE] Tato zprávu rozesílá pouze předchůdce a nejedná
+  \item [TAG\_FINALIZE] Tuto zprávu rozesílá pouze předchůdce a nejedná
 se o nic jiného než o peška. Při přijmu se provede logický součin peška s
 vlastním indikátorem práce. Agresivní je v tomto přípádě 0, která reprezentuje
 existenci práce. V rámci hlavní smyčky je krajně nepravděpodobné, že by procesor
@@ -120,7 +151,7 @@ procesor těsně před přijmutím peška odeslal poslední částečné řešen
 práci.
 \end{description}
 V neposlední řadě se v rámci pracovní smyčky kontroluje dosažení řešení. V
-případě, že procesor najde řešení splňující kriteria pošle toto řešení hlavnímu
+případě, že procesor najde řešení splňující kriteria, pošle toto řešení hlavnímu
 procesoru(P0). Posílá mu počet kroků vedoucí k řešení a řešení jako takové.
 Hlavní procesor na to reaguje tak, že napřed porovná počet kroků s jeho
 aktuálním limitem a pokud je dané řešení kratší, uloží si jej a pošle všem
@@ -138,19 +169,19 @@ nejsem jeho autorem, a proto ho pouze logicky přenásobím se svým stavem a si
 nemám práci (logická 1). Opět platí agresivita nuly (je práce).  
   \item [TAG\_NO\_MORE\_WORK] Tuto zprávu očekávám pouze od toho procesoru,
 kterého jsem žádal o práci. Indikuje danému procesoru fakt, že ani dotazovaný
-nemá nic na práci a proto se musí poohlédnout jinde.
+nemá nic na práci, a proto se musí poohlédnout jinde.
   \item [TAG\_NEED\_MORE\_WORK] Někdo od daného procesoru žádá práci. Bohužel
 ji nemá a proto rovnou odpoví zprávou \verb|TAG_NO_MORE_WORK|.
    \item [TAG\_TERMINATE] Někdo rozhodl, že je na čase ukončit výpočet. Po
-přijmu napřed daný procesor přepošle asynchronně stejnou zprávu svému
-následovníkovi. Hlavní procesor (P0) vypíše na stardandní výstup
-řešení a ukončí se. Jiný než hlavní procesor se pouze ukončí.
+přijmu této zprávy napřed daný procesor přepošle asynchronně stejnou zprávu
+svému následovníkovi a poté se ukončí. Hlavní procesor (P0) před ukončením
+ještě vypíše na stardandní výstup řešení.
 \end{description}
 V případě, že opouští procesor část čekací smyčky ve které si řešil hledání
 prace a tento proces byl úspěšný, vrátí se do pracovní smyčky. V případě
-neúspěchu začne šířit peška. Blokovaně čeká na jeho návrat od předchudce. Pokud
+neúspěchu, začne šířit peška. Blokovaně čeká na jeho návrat od předchudce. Pokud
 se pešek vrátí s tím, že někde ještě práce je, vrátí se do části vyhledávání
-práce. Pokud se však pešek vratí s tím, že už nikde není práce, začne
+práce. Pokud se však pešek vratí s tím, že už nikde práce není, začne
 procesor šířit zprávu  \verb|TAG_TERMINATE| a ukončí se.
 \subsection{Hledání dárce}
 Pro hledání dárce jsme se rozhodli použít pseudo-náhodný přistup. Procesor,
@@ -161,12 +192,15 @@ dokud nevyčerpá všechny možnosti.
 \subsection{Ukončení výpočtu}
 Pro ukončení výpočtu používáme stardandní kolečko s peškem. Peška začne posílat
 procesor, který nemá prací i poté, co o ní požádal postupně všechny ostatní procesy. 
-Každý kdo peška přijme ho přebarví podle toho, jestli práci má nebo ne.
-Případ, kdy přijde pešek v momentě kdy procesor poslal práci do části, kde již pešek
+
+Každý kdo peška přijme ho přebarví podle toho, jestli práci má nebo ne. Případ,
+kdy přijde pešek v momentě kdy procesor poslal práci do části, kde již pešek
 byl, máme ošetřen tím, že v tu chvíli se daný procesor tváří jako by sám práci
-měl, i když to nemusí být nezbytně pravda. Když se pešek vrátí k procesoru který ho vyslal, 
-a je ve stavu \uv{není práce} (logická 1), informuje svého následníka o ukončení výpočtu. 
-Každý procesor, který zprávu o ukončení obdrží ji přepošle svému následovníkovi a ukončí se.
+měl, i když to nemusí být nezbytně pravda. 
+
+Když se pešek vrátí k procesoru který ho vyslal, a je ve stavu \uv{není práce}
+(logická 1), informuje svého následníka o ukončení výpočtu. Každý procesor,
+který zprávu o ukončení obdrží, ji přepošle svému následovníkovi a ukončí se.
 Jedinou vyjímkou v pravidlu je hlavní procesor (P0), který před svým ukončením
 vypíše na výstup nalezené řešení.
 
@@ -178,7 +212,10 @@ Oproti sekvenčnímu řešení nedoznala sémantika příkazu žádných změn.
 
 \section{Naměřené výsledky a vyhodnocení}
 
-Výslednou aplikaci jsme otestovali na výpočetním stroji STAR pro tři různě velké instance problému. Každé zadání bylo změřeno pro běh na 1, 2, 4, 8, 16 a 24 procesorech a pro komunikační sítě InfiniBand a Ethernet. Měření na svazku STAR probíhalo vždy na uzlech s 12 jádry (parametr \textit{12c} při spuštění).
+Výslednou aplikaci jsme otestovali na výpočetním stroji STAR pro tři různě velké
+instance problému. Každé zadání bylo změřeno pro běh na 1, 2, 4, 8, 16 a 24
+procesorech a pro komunikační sítě InfiniBand a Ethernet. Měření na svazku STAR
+probíhalo vždy na uzlech s 12 jádry (parametr \textit{12c} při spuštění).
 
 \begin{itemize}
 \item Zadání č. 1: \texttt{16 6 6 72:32:3:0:20:65408}
@@ -287,15 +324,37 @@ počet procesů & Zadání č.1 & Zadání č.2 & Zadání č.3 \\
 
 
 \subsection{Porovnání měření na Infinibandu a Ethernetu}
-Z porovnání hodnot naměřených na síti Infiniband a Ethernet je vidět, že rozdíli dosahují maximálně desítek sekund pro větší instance na menším počtu procesorů. Částečný vliv na hodnoty má samozřejmě také momentální zatížení svazku STAR a jeho komunikačních sítí v době měření. V procentuálních hodnotách má nějvětší rozdíl hodnotu 5\% pro zadání č.1 na 2 jádrech, pro menší instance a také větší počet procesorů jsou ale rozdíly menší a tak můžeme říci, že rozdílná rychlost přenosu mezi uzly nemá na celkovou dobu výpočtu zásadní vliv.
+Z porovnání hodnot naměřených na síti Infiniband a Ethernet je vidět, že rozdíli
+dosahují maximálně desítek sekund pro větší instance na menším počtu procesorů.
+Částečný vliv na hodnoty má samozřejmě také momentální zatížení svazku STAR a
+jeho komunikačních sítí v době měření. V procentuálních hodnotách má nějvětší
+rozdíl hodnotu 5\% pro zadání č.1 na 2 jádrech, pro menší instance a také větší
+počet procesorů jsou ale rozdíly menší a tak můžeme říci, že rozdílná rychlost
+přenosu mezi uzly nemá na celkovou dobu výpočtu zásadní vliv.
 
 \section{Závěr}
 
-Úspěšně se nám podařilo implementovat sekvenční i paralelní algoritmu pro řešení zadaného problému.
-Provedli jsme měření času potřebného pro výpočet  úloh netriviální složitosti sekvenčně a paralelně na 1-24 jádrech procesoru.
-Výsledky měření ukazují, že algoritmus vykazuje na více procesorech superlineární zrychlení, a to především proto, že současným 
-výpočtem ve více větvích stromu dokážeme dříve nalézt \uv{neideální} řešení a tedy snižovat horní mez, která je globálně sdílena.
+Úspěšně se nám podařilo implementovat sekvenční i paralelní algoritmu pro
+řešení zadaného problému. Provedli jsme měření času potřebného pro výpočet úloh
+netriviální složitosti sekvenčně a paralelně na 1-24 jádrech procesoru. Výsledky
+měření ukazují, že algoritmus vykazuje na více procesorech superlineární
+zrychlení, a to především proto, že současným  výpočtem ve více větvích stromu
+dokážeme dříve nalézt \uv{neideální} řešení a tedy snižovat horní mez, která je
+globálně sdílena. 
 
-Semestrální práce pro nás byla velkým přínosem, hlavně co se týká seznámení s MPI a komunikací v paralelním prostředí. 
+Paradoxně nejvíce problému při implementaci nám dělala mala znalost použitého
+programovcího jazyka. Především ladění chyb způsobených špatnou
+alokací/dealokací pamětí nás vždy značně brzdilo.
+
+Pokud jde o MPI jako takové, narazili jsme pouze na jeden problém. Špatně jsme
+pochopili princip určování velikosti bufferu při přijmu zprávy. Měli jsme za to,
+že je nutné použít zcela přesně velikost celé zprávy, a proto jsme každou zprávu
+s novou prací nebo řešením (jakožto dinamicky dlouhé zprávy) rozdělili na dvě
+části. V první zprávě se pošle velikost věty a teprve poté věta jako taková.
+Bohužel jsme náš omyl zjistili až příliž pozdě na to to změnit. Proto jsou námi
+naměřené výsledky paralelního algoritmu o něco horší, než by mohli být.
+
+Semestrální práce pro nás byla přínosem, hlavně co se týká seznámení se s MPI a
+obecně komunikací v paralelním prostředí. 
 
 \end{document}
