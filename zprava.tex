@@ -102,7 +102,7 @@ programu běží dokud není prázdný zásobník. Na konci běhu program vypí�
 řešení a počet tahů.
 
 \subsubsection{Optimalizace ořezávání horní mezí}
-Těsná horní mez řešení se vypoítá dle vzorce $(2^{n/(s-2)-1})(2s-5)$. V případě
+Těsná horní mez řešení se vypočítá dle vzorce $(2^{n/(s-2)-1})(2s-5)$. V případě
 že je nalezeno řešení je horní mez snížena na jeho velikost mínus jedna (hledáme
 o jedno menší řešení). Pokud zanoření ve stromu řešení překročí aktuálně platnou
 horní mez dojde k oříznutí této neperspektivní větve a provede se návrat. 
@@ -334,7 +334,7 @@ přenosu mezi uzly nemá na celkovou dobu výpočtu zásadní vliv.
 
 \section{Závěr}
 
-Úspěšně se nám podařilo implementovat sekvenční i paralelní algoritmu pro
+Úspěšně se nám podařilo implementovat sekvenční i paralelní algoritmus pro
 řešení zadaného problému. Provedli jsme měření času potřebného pro výpočet úloh
 netriviální složitosti sekvenčně a paralelně na 1-24 jádrech procesoru. Výsledky
 měření ukazují, že algoritmus vykazuje na více procesorech superlineární
